@@ -1,0 +1,35 @@
+<layer-list
+    xmlns:android="http://schemas.android.com/apk/res/android">
+<!--    <item>-->
+<!--        <shape android:shape="rectangle">-->
+
+<!--            <solid android:color="#d8d8d8"/>-->
+<!--            <corners android:radius="7dp"/>-->
+<!--        </shape>-->
+<!--    </item>-->
+<item android:bottom="3px">
+    <shape android:shape="rectangle" >
+    <solid
+        android:color="@android:color/holo_blue_light"
+        >
+    </solid>
+
+    <stroke
+        android:width="1dp"
+        android:color="@android:color/white" >
+    </stroke>
+
+    <padding
+        android:left="@dimen/padding_12"
+        android:top="@dimen/padding_12"
+        android:right="@dimen/padding_12"
+        android:bottom="@dimen/padding_12"    >
+    </padding>
+
+    <corners
+        android:radius="@dimen/radius_32"   >
+    </corners>
+    </shape>
+</item>
+
+</layer-list>

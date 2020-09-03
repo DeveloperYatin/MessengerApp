@@ -20,7 +20,6 @@ class WelcomeActivity : AppCompatActivity() {
         register_welcome_btn.setOnClickListener {
             val intent = Intent(this@WelcomeActivity,RegisterActivity::class.java)
             startActivity(intent)
-            finish()
         }
 
         login_welcome_btn.setOnClickListener {
@@ -41,12 +40,10 @@ class WelcomeActivity : AppCompatActivity() {
 
         firebaseUser = FirebaseAuth.getInstance().currentUser
         if(firebaseUser != null){
-                if(FirebaseAuth.getInstance().currentUser!!.isEmailVerified){
                 val intent = Intent(this@WelcomeActivity,MainActivity::class.java)
                 //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
                 startActivity(intent)
                 finish()
-            }
 
         }else{
             }

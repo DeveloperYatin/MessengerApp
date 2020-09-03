@@ -6,6 +6,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
+import android.view.animation.LayoutAnimationController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.messengerapp.AdapterClasses.UserAdapter
@@ -43,8 +45,11 @@ class ChatsFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_chats, container, false)
 
         recycler_view_chatlist = view.findViewById(R.id.recycler_view_chatlist)
+
         recycler_view_chatlist.setHasFixedSize(true)
         recycler_view_chatlist.layoutManager = LinearLayoutManager(context)
+        val animation: LayoutAnimationController = AnimationUtils.loadLayoutAnimation(context,R.anim.layout_animation)
+        recycler_view_chatlist.layoutAnimation = animation
 
         firebaseUser = FirebaseAuth.getInstance().currentUser
 

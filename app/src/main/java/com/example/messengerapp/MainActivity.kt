@@ -129,6 +129,7 @@ class MainActivity : AppCompatActivity() {
         super.onStart()
 
 
+
         // Checking for receiving video calls or not
         refUsers!!.child("Ringing").addValueEventListener(object : ValueEventListener{
             override fun onDataChange(p0: DataSnapshot) {

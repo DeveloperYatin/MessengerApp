@@ -8,6 +8,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
+import android.view.animation.LayoutAnimationController
 import android.widget.EditText
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -29,7 +31,7 @@ class SearchFragment : Fragment() {
 
     private var userAdapter: UserAdapter? = null
     private var mUsers: List<Users>? = null
-    private var recyclerView: RecyclerView? = null
+    lateinit var recyclerView: RecyclerView
     private var searchEditText: EditText? = null
 
     override fun onCreateView(
@@ -41,9 +43,11 @@ class SearchFragment : Fragment() {
 
 
         recyclerView = view.findViewById(R.id.searchList)
-        recyclerView!!.setHasFixedSize(true)
-        recyclerView!!.layoutManager = LinearLayoutManager(context)
+        recyclerView.setHasFixedSize(true)
+        recyclerView.layoutManager = LinearLayoutManager(context)
         searchEditText = view.findViewById(R.id.searchUsersET)
+        val animation: LayoutAnimationController = AnimationUtils.loadLayoutAnimation(context,R.anim.layout_animation)
+        recyclerView.layoutAnimation = animation
 
 
         mUsers = ArrayList()

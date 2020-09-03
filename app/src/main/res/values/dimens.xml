@@ -1,3 +1,5 @@
 <resources>
     <dimen name="fab_margin">16dp</dimen>
+    <dimen name="padding_12">12dp</dimen>
+    <dimen name="radius_32">32dp</dimen>
 </resources>

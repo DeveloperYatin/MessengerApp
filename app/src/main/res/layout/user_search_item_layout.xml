@@ -1,12 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    app:cardCornerRadius="5dp"
+    app:cardElevation="5dp"
+    app:cardUseCompatPadding="true"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/profile_image"
         android:layout_width="60dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginBottom="10dp"
         android:layout_height="60dp"
         android:src="@drawable/ic_profile"
         />
@@ -30,8 +39,8 @@
         app:civ_border_width="12dp"
         android:src="@drawable/ic_profile"
         android:layout_below="@id/username"
-        android:layout_marginTop="12dp"
-        android:layout_marginLeft="-16dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="-11dp"
         android:layout_toRightOf="@id/username"
         android:layout_toEndOf="@id/profile_image"
         android:visibility="gone"
@@ -46,8 +55,8 @@
         app:civ_border_width="12dp"
         android:src="@drawable/ic_profile"
         android:layout_below="@id/username"
-        android:layout_marginTop="12dp"
-        android:layout_marginLeft="-16dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="-11dp"
         android:layout_toRightOf="@id/username"
         android:layout_toEndOf="@id/profile_image"
         android:visibility="gone"
@@ -68,5 +77,6 @@
         android:layout_below="@id/username"
         android:visibility="gone"
         />
+    </RelativeLayout>
 
-</RelativeLayout>
+</androidx.cardview.widget.CardView>
