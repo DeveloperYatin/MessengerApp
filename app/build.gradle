@@ -47,10 +47,17 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
 
-
+    //For phone auth
     implementation 'com.hbb20:ccp:2.1.9'
+
+    //For Video calling
     implementation 'pub.devrel:easypermissions:0.4.0'
     implementation 'com.opentok.android:opentok-android-sdk:2.15.3'
+
+    //For dimensions
+    implementation 'com.intuit.sdp:sdp-android:1.0.6'
+    implementation 'com.intuit.ssp:ssp-android:1.0.6'
+
 }
 
 apply plugin: 'com.google.gms.google-services'

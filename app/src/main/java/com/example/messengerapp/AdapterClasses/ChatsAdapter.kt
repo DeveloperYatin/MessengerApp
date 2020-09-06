@@ -11,6 +11,7 @@ import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.example.messengerapp.MainActivity
@@ -71,58 +72,72 @@ class ChatsAdapter(
             if(chat.getSender().equals(firebaseUser!!.uid)){
                 holder.show_text_message!!.visibility = View.GONE
                 holder.right_image_view!!.visibility = View.VISIBLE
+                holder.right_card_view!!.visibility = View.VISIBLE
                 Picasso.get().load(chat.getUrl()).into(holder.right_image_view)
 
                 holder.right_image_view!!.setOnClickListener {
-                    val options = arrayOf<CharSequence>(
-                        "View Full Image",
-                        "Delete Image",
-                        "Cancel"
-                    )
 
-                    var builder: AlertDialog.Builder = AlertDialog.Builder(holder.itemView.context)
-                    builder.setTitle("What do you want?")
-                    builder.setItems(options, DialogInterface.OnClickListener{
-                        dialog, which ->
-                        if (which == 0){
-                            val intent = Intent(mContext, ViewFullImageActivity::class.java)
-                            intent.putExtra("url", chat.getUrl())
-                            mContext.startActivity(intent)
+                    val intent = Intent(mContext, ViewFullImageActivity::class.java)
+                              intent.putExtra("url", chat.getUrl())
+                              mContext.startActivity(intent)
 
-                        }
-                        else if (which == 1){
-                            deleteSentMessage(position, holder)
-                        }
-                    })
-                    builder.show()
+
+//                    val options = arrayOf<CharSequence>(
+//                        "View Full Image",
+//                        "Delete Image",
+//                        "Cancel"
+//                    )
+//
+//                    var builder: AlertDialog.Builder = AlertDialog.Builder(holder.itemView.context)
+//                    builder.setTitle("What do you want?")
+//                    builder.setItems(options, DialogInterface.OnClickListener{
+//                        dialog, which ->
+//                        if (which == 0){
+//                            val intent = Intent(mContext, ViewFullImageActivity::class.java)
+//                            intent.putExtra("url", chat.getUrl())
+//                            mContext.startActivity(intent)
+//
+//                        }
+//                        else if (which == 1){
+//                            deleteSentMessage(position, holder)
+//                        }
+//                    })
+//                    builder.show()
                 }
             }
             // image message - left side
             else if(!chat.getSender().equals(firebaseUser!!.uid)){
                 holder.show_text_message!!.visibility = View.GONE
                 holder.left_image_view!!.visibility = View.VISIBLE
+                holder.left_card_view!!.visibility = View.VISIBLE
                 Picasso.get().load(chat.getUrl()).into(holder.left_image_view)
 
                 holder.left_image_view!!.setOnClickListener {
-                    val options = arrayOf<CharSequence>(
-                        "View Full Image",
-                        "Cancel"
-                    )
 
-                    var builder: AlertDialog.Builder = AlertDialog.Builder(holder.itemView.context)
-                    builder.setTitle("What do you want?")
-                    builder.setItems(options, DialogInterface.OnClickListener{
-                            dialog, which ->
-                        if (which == 0){
-                            val intent = Intent(mContext, ViewFullImageActivity::class.java)
-                            intent.putExtra("url", chat.getUrl())
-                            mContext.startActivity(intent)
+                    val intent = Intent(mContext, ViewFullImageActivity::class.java)
+                              intent.putExtra("url", chat.getUrl())
+                              mContext.startActivity(intent)
 
-                        }
 
-                    })
-                    builder.show()
-                }
+//                    val options = arrayOf<CharSequence>(
+//                        "View Full Image",
+//                        "Cancel"
+//                    )
+//
+//                    var builder: AlertDialog.Builder = AlertDialog.Builder(holder.itemView.context)
+//                    builder.setTitle("What do you want?")
+//                    builder.setItems(options, DialogInterface.OnClickListener{
+//                            dialog, which ->
+//                        if (which == 0){
+//                            val intent = Intent(mContext, ViewFullImageActivity::class.java)
+//                            intent.putExtra("url", chat.getUrl())
+//                            mContext.startActivity(intent)
+//
+//                        }
+//
+//                    })
+//                    builder.show()
+                  }
             }
 
         }
@@ -185,6 +200,8 @@ class ChatsAdapter(
 
     inner class viewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
         var profile_image: CircleImageView? = null
+        var right_card_view: CardView? = null
+        var left_card_view: CardView? = null
         var show_text_message: TextView? = null
         var left_image_view: ImageView? = null
         var text_seen: TextView? = null
@@ -193,6 +210,8 @@ class ChatsAdapter(
 
         init {
             profile_image = itemView.findViewById(R.id.profile_image)
+            right_card_view = itemView.findViewById(R.id.right_card_view)
+            left_card_view = itemView.findViewById(R.id.left_card_view)
             show_text_message = itemView.findViewById(R.id.show_text_message)
             left_image_view = itemView.findViewById(R.id.left_image_view)
             text_seen = itemView.findViewById(R.id.text_seen)

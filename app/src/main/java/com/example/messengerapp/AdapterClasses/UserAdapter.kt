@@ -87,29 +87,29 @@ class UserAdapter (
 
         holder.itemView.setOnClickListener {
 
-           /* val intent = Intent(mContext, MessageChatActivity::class.java)
+            val intent = Intent(mContext, MessageChatActivity::class.java)
             intent.putExtra("visit_id",user.getUID())
-            mContext.startActivity(intent)*/
+            mContext.startActivity(intent)
 
-            val options = arrayOf<CharSequence>(
-                "Send Message",
-                "Visit Profile"
-            )
-            val builder: AlertDialog.Builder = AlertDialog.Builder(mContext)
-            builder.setTitle("What do you want?")
-            builder.setItems(options, DialogInterface.OnClickListener { dialog, which ->
-                if(which == 0){
-                    val intent = Intent(mContext, MessageChatActivity::class.java)
-                    intent.putExtra("visit_id",user.getUID())
-                    mContext.startActivity(intent)
-
-                }
-                if(which == 1){
-
-
-                }
-            })
-            builder.show()
+//            val options = arrayOf<CharSequence>(
+//                "Send Message",
+//                "Visit Profile"
+//            )
+//            val builder: AlertDialog.Builder = AlertDialog.Builder(mContext)
+//            builder.setTitle("What do you want?")
+//            builder.setItems(options, DialogInterface.OnClickListener { dialog, which ->
+//                if(which == 0){
+//                    val intent = Intent(mContext, MessageChatActivity::class.java)
+//                    intent.putExtra("visit_id",user.getUID())
+//                    mContext.startActivity(intent)
+//
+//                }
+//                if(which == 1){
+//
+//
+//                }
+//            })
+//            builder.show()
         }
     }
 

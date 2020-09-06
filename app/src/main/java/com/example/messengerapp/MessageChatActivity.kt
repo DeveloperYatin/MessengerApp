@@ -6,6 +6,9 @@ import android.content.Intent
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
+import android.view.animation.AnimationUtils
+import android.view.animation.LayoutAnimationController
 import android.widget.Toast
 import android.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -27,6 +30,7 @@ import com.google.firebase.storage.StorageTask
 import com.google.firebase.storage.UploadTask
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_message_chat.*
+import kotlinx.android.synthetic.main.fab_layout.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -57,13 +61,13 @@ class MessageChatActivity : AppCompatActivity() {
         val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.toolbar_message_chat)
         setSupportActionBar(toolbar)
         supportActionBar!!.title = ""
-        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-        toolbar.setNavigationOnClickListener {
-            val intent = Intent(this@MessageChatActivity,WelcomeActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(intent)
-            finish()
-        }
+//        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+//        toolbar.setNavigationOnClickListener {
+//            val intent = Intent(this@MessageChatActivity,WelcomeActivity::class.java)
+//            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+//            startActivity(intent)
+//            finish()
+//        }
 
         apiService = Client.Client.getClient("https://fcm.googleapis.com/")!!.create(ApiService::class.java)
 
@@ -97,9 +101,17 @@ class MessageChatActivity : AppCompatActivity() {
         })
 
         Video_call.setOnClickListener {
-            val intent = Intent(this@MessageChatActivity, VideoCallActivity::class.java)
-            intent.putExtra("visit_id",userIdVisit)
-            startActivity(intent)
+//            val intent = Intent(this@MessageChatActivity, VideoCallActivity::class.java)
+//            intent.putExtra("visit_id",userIdVisit)
+//            startActivity(intent)
+
+            Toast.makeText(this@MessageChatActivity, "Video Call button clicked", Toast.LENGTH_LONG).show()
+        }
+
+
+        callingButton.setOnClickListener {
+
+            Toast.makeText(this@MessageChatActivity, "Calling button clicked", Toast.LENGTH_LONG).show()
         }
 
         send_message_btn.setOnClickListener {
@@ -116,14 +128,38 @@ class MessageChatActivity : AppCompatActivity() {
 
         attach_image_file_btn.setOnClickListener {
 
-            notify = true
-            val intent = Intent()
-            intent.action = Intent.ACTION_GET_CONTENT
-            intent.type = "image/*"
-            startActivityForResult(Intent.createChooser(intent,"Pick image"), 438)
+            val animation = AnimationUtils.loadAnimation(this@MessageChatActivity,R.anim.translate)
+
+
+            if(attach_image_file_btn.isChecked){
+                fab_1.visibility = View.VISIBLE
+                fab_2.visibility = View.VISIBLE
+                fab_3.visibility = View.VISIBLE
+                fab_1.startAnimation(animation)
+                fab_2.startAnimation(animation)
+                fab_3.startAnimation(animation)
+            }
+            else{
+                fab_1.visibility = View.GONE
+                fab_2.visibility = View.GONE
+                fab_3.visibility = View.GONE
+            }
+
+
+
+           // sendImage()
+
         }
 
         seenMessage(userIdVisit)
+    }
+
+    private fun sendImage() {
+        notify = true
+        val intent = Intent()
+        intent.action = Intent.ACTION_GET_CONTENT
+        intent.type = "image/*"
+        startActivityForResult(Intent.createChooser(intent,"Pick image"), 438)
     }
 
     override fun onStart() {
