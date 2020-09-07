@@ -33,126 +33,126 @@ import kotlinx.android.synthetic.main.fragment_settings.view.*
  */
 class SettingsFragment : Fragment() {
 
-    var userReference:  DatabaseReference? = null
-    var firebaseUser: FirebaseUser? = null
-    private val RequestCode = 123
-    private var imageUri: Uri? = null
-    private var storageRef: StorageReference? = null
-    private var  coverChecker: String? = null
+  var userReference:  DatabaseReference? = null
+  var firebaseUser: FirebaseUser? = null
+  private val RequestCode = 123
+  private var imageUri: Uri? = null
+  private var storageRef: StorageReference? = null
+  private var  coverChecker: String? = null
 
 
 
 
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        val view = inflater.inflate(R.layout.fragment_settings, container, false)
+  override fun onCreateView(
+    inflater: LayoutInflater, container: ViewGroup?,
+    savedInstanceState: Bundle?
+  ): View? {
+    // Inflate the layout for this fragment
+    val view = inflater.inflate(R.layout.fragment_settings, container, false)
 
-        firebaseUser = FirebaseAuth.getInstance().currentUser
+    firebaseUser = FirebaseAuth.getInstance().currentUser
 
-        userReference =FirebaseDatabase.getInstance().reference.child("Users").child(firebaseUser!!.uid)
-        storageRef = FirebaseStorage.getInstance().reference.child("User Images")
+    userReference =FirebaseDatabase.getInstance().reference.child("Users").child(firebaseUser!!.uid)
+    storageRef = FirebaseStorage.getInstance().reference.child("User Images")
 
-        userReference!!.addValueEventListener(object : ValueEventListener{
+    userReference!!.addValueEventListener(object : ValueEventListener{
 
-            override fun onDataChange(p0: DataSnapshot) {
-                if(p0.exists()){
-                    val user: Users? = p0.getValue(Users::class.java)
-
-
-                    if(context != null){
-                        view.username_settings.text = user!!.getUserName()
-                        Picasso.get().load(user.getProfile()).into(view.profile_image_settings)
-                        Picasso.get().load(user.getCover()).into(view.cover_image_settings)
-                    }
-                }
-            }
-
-            override fun onCancelled(p0: DatabaseError) {
-
-            }
-        })
+      override fun onDataChange(p0: DataSnapshot) {
+        if(p0.exists()){
+          val user: Users? = p0.getValue(Users::class.java)
 
 
-        view.profile_image_settings.setOnClickListener {
-            pickImage()
+          if(context != null){
+            view.username_settings.text = user!!.getUserName()
+            Picasso.get().load(user.getProfile()).into(view.profile_image_settings)
+            Picasso.get().load(user.getCover()).into(view.cover_image_settings)
+          }
         }
+      }
 
-        view.cover_image_settings.setOnClickListener {
-            coverChecker = "cover"
-            pickImage()
-        }
+      override fun onCancelled(p0: DatabaseError) {
 
-        return view
+      }
+    })
+
+
+    view.profile_image_settings.setOnClickListener {
+      pickImage()
     }
 
-    private fun pickImage() {
-        val intent = Intent()
-        intent.type = "image/*"
-        intent.action = Intent.ACTION_GET_CONTENT
-        startActivityForResult(intent,RequestCode)
+    view.cover_image_settings.setOnClickListener {
+      coverChecker = "cover"
+      pickImage()
     }
 
+    return view
+  }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
+  private fun pickImage() {
+    val intent = Intent()
+    intent.type = "image/*"
+    intent.action = Intent.ACTION_GET_CONTENT
+    startActivityForResult(intent,RequestCode)
+  }
 
 
-        if(requestCode == RequestCode && resultCode == Activity.RESULT_OK && data!!.data != null){
+  override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    super.onActivityResult(requestCode, resultCode, data)
 
-            imageUri = data.data
-            Toast.makeText(context, "Uploading....", Toast.LENGTH_LONG).show()
-            uploadImage()
+
+    if(requestCode == RequestCode && resultCode == Activity.RESULT_OK && data!!.data != null){
+
+      imageUri = data.data
+      Toast.makeText(context, "Uploading....", Toast.LENGTH_LONG).show()
+      uploadImage()
+
+    }
+  }
+
+  private fun uploadImage() {
+
+    val progressBar = ProgressDialog(context)
+    progressBar.setMessage("Image is uploading, please wait...")
+    progressBar.show()
+
+    if(imageUri != null){
+      val fileRef = storageRef!!.child(System.currentTimeMillis().toString() + ".jpg")
+
+      var uploadTask: StorageTask<*>
+      uploadTask = fileRef.putFile(imageUri!!)
+
+      uploadTask.continueWithTask(Continuation <UploadTask.TaskSnapshot, Task<Uri> >{ task ->
+
+        if(task.isSuccessful){
+          task.exception?.let {
+            throw it
+          }
 
         }
-    }
+        return@Continuation fileRef.downloadUrl
+      }).addOnCompleteListener { task ->
+        if(task.isSuccessful){
+          val downloadUrl = task.result
+          val url = downloadUrl.toString()
 
-    private fun uploadImage() {
-
-        val progressBar = ProgressDialog(context)
-        progressBar.setMessage("Image is uploading, please wait...")
-        progressBar.show()
-
-        if(imageUri != null){
-            val fileRef = storageRef!!.child(System.currentTimeMillis().toString() + ".jpg")
-
-            var uploadTask: StorageTask<*>
-            uploadTask = fileRef.putFile(imageUri!!)
-
-            uploadTask.continueWithTask(Continuation <UploadTask.TaskSnapshot, Task<Uri> >{ task ->
-
-                if(task.isSuccessful){
-                    task.exception?.let {
-                        throw it
-                    }
-
-                }
-                return@Continuation fileRef.downloadUrl
-            }).addOnCompleteListener { task ->
-                if(task.isSuccessful){
-                    val downloadUrl = task.result
-                    val url = downloadUrl.toString()
-
-                    if (coverChecker == "cover"){
-                        val mapCoverImg = HashMap<String, Any>()
-                        mapCoverImg["cover"] = url
-                        userReference!!.updateChildren(mapCoverImg)
-                        coverChecker = ""
-                    }
-                    else{
-                        val mapProfileImg = HashMap<String, Any>()
-                        mapProfileImg["profile"] = url
-                        userReference!!.updateChildren(mapProfileImg)
-                        coverChecker = ""
-                    }
-                    progressBar.dismiss()
-                }
-            }
-
+          if (coverChecker == "cover"){
+            val mapCoverImg = HashMap<String, Any>()
+            mapCoverImg["cover"] = url
+            userReference!!.updateChildren(mapCoverImg)
+            coverChecker = ""
+          }
+          else{
+            val mapProfileImg = HashMap<String, Any>()
+            mapProfileImg["profile"] = url
+            userReference!!.updateChildren(mapProfileImg)
+            coverChecker = ""
+          }
+          progressBar.dismiss()
         }
+      }
+
     }
+  }
 
 }

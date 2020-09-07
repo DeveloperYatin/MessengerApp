@@ -16,6 +16,7 @@ import com.example.messengerapp.ModelClasses.Chat
 import com.example.messengerapp.ModelClasses.Users
 import com.example.messengerapp.Notifications.*
 import com.example.messengerapp.VideoCall.VideoCallActivity
+import com.google.android.gms.common.api.Api
 import com.google.android.gms.tasks.Continuation
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
@@ -142,24 +143,36 @@ class MessageChatActivity : AppCompatActivity() {
                 fab_1.visibility = View.VISIBLE
                 fab_2.visibility = View.VISIBLE
                 fab_3.visibility = View.VISIBLE
+                fab_4.visibility = View.VISIBLE
+                fab_5.visibility = View.VISIBLE
                 fab_1.startAnimation(animationAppear)
                 fab_2.startAnimation(animationAppear)
                 fab_3.startAnimation(animationAppear)
+                fab_4.startAnimation(animationAppear)
+                fab_5.startAnimation(animationAppear)
                 fab_1.isClickable = true
                 fab_2.isClickable = true
                 fab_3.isClickable = true
+                fab_4.isClickable = true
+                fab_5.isClickable = true
                 attach_image_file_btn.setBackgroundResource(R.drawable.ic_attachment2)
             }
             else{
                 fab_1.visibility = View.GONE
                 fab_2.visibility = View.GONE
                 fab_3.visibility = View.GONE
+                fab_4.visibility = View.GONE
+                fab_5.visibility = View.GONE
                 fab_1.startAnimation(animationDisappear)
                 fab_2.startAnimation(animationDisappear)
                 fab_3.startAnimation(animationDisappear)
+                fab_4.startAnimation(animationDisappear)
+                fab_5.startAnimation(animationDisappear)
                 fab_1.isClickable = false
                 fab_2.isClickable = false
                 fab_3.isClickable = false
+                fab_4.isClickable = false
+                fab_5.isClickable = false
                 attach_image_file_btn.setBackgroundResource(R.drawable.ic_attachment1)
             }
 
@@ -180,9 +193,18 @@ class MessageChatActivity : AppCompatActivity() {
         fab_3.setOnClickListener {
             Toast.makeText(this@MessageChatActivity, "Video file attach button", Toast.LENGTH_SHORT).show()
         }
+        fab_4.setOnClickListener {
+            Toast.makeText(this@MessageChatActivity, "Contact attach button", Toast.LENGTH_SHORT).show()
+        }
+        fab_5.setOnClickListener {
+            Toast.makeText(this@MessageChatActivity, "File attach button", Toast.LENGTH_SHORT).show()
+        }
 
         seenMessage(userIdVisit)
     }
+
+
+    //Image sending function
 
     private fun sendImage() {
         notify = true
@@ -192,32 +214,90 @@ class MessageChatActivity : AppCompatActivity() {
         startActivityForResult(Intent.createChooser(intent,"Pick image"), 438)
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
 
+        if(requestCode == 438 && resultCode == RESULT_OK && data != null && data!!.data != null){
 
-        //Checking for receiving video calls or not
-        refUsers!!.child("Ringing").addValueEventListener(object : ValueEventListener{
-            override fun onDataChange(p0: DataSnapshot) {
-                if(p0.exists()){
-                    if(p0.hasChild("ringing")){
+            val progressBar = ProgressDialog(this)
+            progressBar.setMessage("Image is uploading, please wait...")
+            progressBar.show()
 
-                        calledBy = p0.child("ringing").value!!.toString()
+            val fileUri = data.data
+            val storageReference = FirebaseStorage.getInstance().reference.child("Chat Images")
+            val ref = FirebaseDatabase.getInstance().reference
+            val messageId = ref.push().key
+            val filePath = storageReference.child("$messageId.jpg")
 
-                        val intent = Intent(this@MessageChatActivity,VideoCallActivity::class.java)
-                        intent.putExtra("visit_id",calledBy)
-                        startActivity(intent)
+            var uploadTask: StorageTask<*>
+            uploadTask = filePath.putFile(fileUri!!)
+
+            uploadTask.continueWithTask(Continuation <UploadTask.TaskSnapshot, Task<Uri>>{ task ->
+
+                if(task.isSuccessful){
+                    task.exception?.let {
+                        throw it
                     }
+
                 }
-            }
+                return@Continuation filePath.downloadUrl
+            }).addOnCompleteListener { task ->
 
-            override fun onCancelled(p0: DatabaseError) {
+                if(task.isSuccessful){
+                    val downloadUrl = task.result
+                    val url = downloadUrl.toString()
+
+                    val messageHashMap = HashMap<String, Any?>()
+                    messageHashMap["sender"] = firebaseUser!!.uid
+                    messageHashMap["message"] = "sent you an image."
+                    messageHashMap["receiver"] = userIdVisit
+                    messageHashMap["isseen"] = false
+                    messageHashMap["url"] = url
+                    messageHashMap["messageId"] = messageId
+
+
+                    ref.child("Chats").child(messageId!!).setValue(messageHashMap)
+                        .addOnCompleteListener { task ->
+                            if(task.isSuccessful){
+
+                                progressBar.dismiss()
+                                //implement the push notifications using fcm
+
+
+                                val reference = FirebaseDatabase.getInstance().reference
+                                    .child("Users").child(firebaseUser!!.uid)
+
+                                reference.addValueEventListener(object : ValueEventListener{
+
+                                    override fun onDataChange(p0: DataSnapshot) {
+                                        val user = p0.getValue(Users::class.java)
+
+                                        if(notify){
+                                            sendNotification(userIdVisit, user!!.getUserName(), "sent you an image.")
+                                        }
+                                        notify = false
+                                    }
+
+                                    override fun onCancelled(p0: DatabaseError) {
+
+                                    }
+
+
+                                })
+                            } }
+
+
+                }
 
             }
-        })
+        }
     }
 
 
+
+
+
+    //Sending message funtion
 
     private fun sendMessageToUser(senderId: String, receiverId: String?, message: String) {
 
@@ -292,6 +372,9 @@ class MessageChatActivity : AppCompatActivity() {
 
     }
 
+
+    //Sending notification function
+
     private fun sendNotification(receiverId: String?, userName: String?, message: String) {
 
         val ref = FirebaseDatabase.getInstance().reference.child("Tokens")
@@ -343,84 +426,10 @@ class MessageChatActivity : AppCompatActivity() {
 
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if(requestCode == 438 && resultCode == RESULT_OK && data != null && data!!.data != null){
-
-            val progressBar = ProgressDialog(this)
-            progressBar.setMessage("Image is uploading, please wait...")
-            progressBar.show()
-
-            val fileUri = data.data
-            val storageReference = FirebaseStorage.getInstance().reference.child("Chat Images")
-            val ref = FirebaseDatabase.getInstance().reference
-            val messageId = ref.push().key
-            val filePath = storageReference.child("$messageId.jpg")
-
-            var uploadTask: StorageTask<*>
-            uploadTask = filePath.putFile(fileUri!!)
-
-            uploadTask.continueWithTask(Continuation <UploadTask.TaskSnapshot, Task<Uri>>{ task ->
-
-                if(task.isSuccessful){
-                    task.exception?.let {
-                        throw it
-                    }
-
-                }
-                return@Continuation filePath.downloadUrl
-            }).addOnCompleteListener { task ->
-
-                if(task.isSuccessful){
-                    val downloadUrl = task.result
-                    val url = downloadUrl.toString()
-
-                    val messageHashMap = HashMap<String, Any?>()
-                    messageHashMap["sender"] = firebaseUser!!.uid
-                    messageHashMap["message"] = "sent you an image."
-                    messageHashMap["receiver"] = userIdVisit
-                    messageHashMap["isseen"] = false
-                    messageHashMap["url"] = url
-                    messageHashMap["messageId"] = messageId
 
 
-                    ref.child("Chats").child(messageId!!).setValue(messageHashMap)
-                        .addOnCompleteListener { task ->
-                            if(task.isSuccessful){
+    //Retrieving messages function
 
-                                progressBar.dismiss()
-                                //implement the push notifications using fcm
-
-
-                                val reference = FirebaseDatabase.getInstance().reference
-                                    .child("Users").child(firebaseUser!!.uid)
-
-                                reference.addValueEventListener(object : ValueEventListener{
-
-                                    override fun onDataChange(p0: DataSnapshot) {
-                                        val user = p0.getValue(Users::class.java)
-
-                                        if(notify){
-                                            sendNotification(userIdVisit, user!!.getUserName(), "sent you an image.")
-                                        }
-                                        notify = false
-                                    }
-
-                                    override fun onCancelled(p0: DatabaseError) {
-
-                                    }
-
-
-                                })
-                        } }
-
-
-                }
-
-            }
-        }
-    }
     private fun retrieveMessages(senderId: String, receiverId: String?, receiverImageUrl: String?) {
 
         mChatList = ArrayList()
@@ -479,6 +488,31 @@ class MessageChatActivity : AppCompatActivity() {
         super.onPause()
 
         reference!!.removeEventListener(seenListener!!)
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+
+        //Checking for receiving video calls or not
+        refUsers!!.child("Ringing").addValueEventListener(object : ValueEventListener{
+            override fun onDataChange(p0: DataSnapshot) {
+                if(p0.exists()){
+                    if(p0.hasChild("ringing")){
+
+                        calledBy = p0.child("ringing").value!!.toString()
+
+                        val intent = Intent(this@MessageChatActivity,VideoCallActivity::class.java)
+                        intent.putExtra("visit_id",calledBy)
+                        startActivity(intent)
+                    }
+                }
+            }
+
+            override fun onCancelled(p0: DatabaseError) {
+
+            }
+        })
     }
 
 }
