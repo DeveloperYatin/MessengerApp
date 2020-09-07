@@ -185,19 +185,26 @@ class MessageChatActivity : AppCompatActivity() {
         }
 
         fab_2.setOnClickListener {
-            sendImage()
+            
+			sendImage()
 
-            Toast.makeText(this@MessageChatActivity, "Image file attach button", Toast.LENGTH_SHORT).show()
+            //Toast.makeText(this@MessageChatActivity, "Image file attach button", Toast.LENGTH_SHORT).show()
         }
 
         fab_3.setOnClickListener {
-            Toast.makeText(this@MessageChatActivity, "Video file attach button", Toast.LENGTH_SHORT).show()
+		
+			sendVideo()
+			
+            //Toast.makeText(this@MessageChatActivity, "Video file attach button", Toast.LENGTH_SHORT).show()
         }
         fab_4.setOnClickListener {
             Toast.makeText(this@MessageChatActivity, "Contact attach button", Toast.LENGTH_SHORT).show()
         }
         fab_5.setOnClickListener {
-            Toast.makeText(this@MessageChatActivity, "File attach button", Toast.LENGTH_SHORT).show()
+		
+			sendPdfFiles()
+            
+			//Toast.makeText(this@MessageChatActivity, "File attach button", Toast.LENGTH_SHORT).show()
         }
 
         seenMessage(userIdVisit)
@@ -214,9 +221,102 @@ class MessageChatActivity : AppCompatActivity() {
         startActivityForResult(Intent.createChooser(intent,"Pick image"), 438)
     }
 
+	//PDF files sending function
+	
+	private fun sendPdfFiles() {
+        //notify = true
+        val intent = Intent()
+        intent.action = Intent.ACTION_GET_CONTENT
+        intent.type = "application/pdf/*"
+        startActivityForResult(Intent.createChooser(intent,"Pick files"), 439)
+    }
+	
+	//Video sending function
+	
+	private fun sendVideo() {
+        //notify = true
+        val intent = Intent()
+        intent.action = Intent.ACTION_GET_CONTENT
+        intent.type = "video/*"
+        startActivityForResult(Intent.createChooser(intent,"Choose videos"), 440)
+    }
+	
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
+		//for pdf files 
+		if(requestCode == 439 && resultCode == RESULT_OK && data != null && data!!.data != null){
+		
+			val progressBar = ProgressDialog(this)
+            progressBar.setMessage("PDF File is uploading, please wait...")
+            progressBar.show()
+
+            val fileUri = data.data // PDF File path in uri format
+            val storageReference = FirebaseStorage.getInstance().reference.child("Chat Files")
+            val ref = FirebaseDatabase.getInstance().reference
+            val messageId = ref.push().key
+            val filePath = storageReference.child("$messageId.pdf")
+
+            var uploadTask: StorageTask<*>
+            uploadTask = filePath.putFile(fileUri!!)
+
+            uploadTask.continueWithTask(Continuation <UploadTask.TaskSnapshot, Task<Uri>>{ task ->
+
+                if(task.isSuccessful){
+                    task.exception?.let {
+                        throw it
+                    }
+
+                }
+                return@Continuation filePath.downloadUrl
+            }).addOnCompleteListener { task ->
+
+                if(task.isSuccessful){
+
+                    val downloadUrl = task.result
+                    val url = downloadUrl.toString() //PDF file url after uploading task
+                }
+            }
+		}
+		
+		//for videos uploading 
+		if(requestCode == 440 && resultCode == RESULT_OK && data != null && data!!.data != null){
+		
+			val progressBar = ProgressDialog(this)
+            progressBar.setMessage("Video is uploading, please wait...")
+            progressBar.show()
+
+            val fileUri = data.data // Video path in uri format
+            val storageReference = FirebaseStorage.getInstance().reference.child("Chat Videos")
+            val ref = FirebaseDatabase.getInstance().reference
+            val messageId = ref.push().key
+            val filePath = storageReference.child("$messageId.mp4")
+
+            var uploadTask: StorageTask<*>
+            uploadTask = filePath.putFile(fileUri!!)
+
+            uploadTask.continueWithTask(Continuation <UploadTask.TaskSnapshot, Task<Uri>>{ task ->
+
+                if(task.isSuccessful){
+                    task.exception?.let {
+                        throw it
+                    }
+
+                }
+                return@Continuation filePath.downloadUrl
+            }).addOnCompleteListener { task ->
+
+                if(task.isSuccessful){
+			
+					val downloadUrl = task.result
+                    val url = downloadUrl.toString() //Video url after uploading task
+                }
+            }
+		}
+		
+		
+		//for sending images 
+		
         if(requestCode == 438 && resultCode == RESULT_OK && data != null && data!!.data != null){
 
             val progressBar = ProgressDialog(this)
