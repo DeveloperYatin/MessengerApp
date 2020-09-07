@@ -1,6 +1,5 @@
 package com.example.messengerapp
 
-import android.app.Activity
 import android.app.ProgressDialog
 import android.content.Intent
 import android.net.Uri
@@ -8,9 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.view.animation.AnimationUtils
-import android.view.animation.LayoutAnimationController
 import android.widget.Toast
-import android.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.messengerapp.AdapterClasses.ChatsAdapter
@@ -25,7 +22,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.StorageTask
 import com.google.firebase.storage.UploadTask
 import com.squareup.picasso.Picasso
@@ -61,13 +57,14 @@ class MessageChatActivity : AppCompatActivity() {
         val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.toolbar_message_chat)
         setSupportActionBar(toolbar)
         supportActionBar!!.title = ""
-//        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-//        toolbar.setNavigationOnClickListener {
-//            val intent = Intent(this@MessageChatActivity,WelcomeActivity::class.java)
-//            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
-//            startActivity(intent)
-//            finish()
-//        }
+
+        //Back on press profile pic or back button on tool bar
+        profile_image_mchat.setOnClickListener { 
+            onBackPressed()
+        }
+        backButton.setOnClickListener {
+            onBackPressed()
+        }
 
         apiService = Client.Client.getClient("https://fcm.googleapis.com/")!!.create(ApiService::class.java)
 
@@ -100,6 +97,9 @@ class MessageChatActivity : AppCompatActivity() {
             }
         })
 
+
+        //VideoCalling button on toolbar
+
         Video_call.setOnClickListener {
 //            val intent = Intent(this@MessageChatActivity, VideoCallActivity::class.java)
 //            intent.putExtra("visit_id",userIdVisit)
@@ -108,11 +108,15 @@ class MessageChatActivity : AppCompatActivity() {
             Toast.makeText(this@MessageChatActivity, "Video Call button clicked", Toast.LENGTH_LONG).show()
         }
 
+        //Calling button on toolbar
 
         callingButton.setOnClickListener {
 
             Toast.makeText(this@MessageChatActivity, "Calling button clicked", Toast.LENGTH_LONG).show()
         }
+
+
+        //Sending message button
 
         send_message_btn.setOnClickListener {
             notify = true
@@ -126,29 +130,55 @@ class MessageChatActivity : AppCompatActivity() {
 
         }
 
+
+        // AttachFiles button
+
         attach_image_file_btn.setOnClickListener {
 
-            val animation = AnimationUtils.loadAnimation(this@MessageChatActivity,R.anim.translate)
-
+            val animationAppear = AnimationUtils.loadAnimation(this@MessageChatActivity,R.anim.translate_appear)
+            val animationDisappear = AnimationUtils.loadAnimation(this@MessageChatActivity,R.anim.translate_disappear)
 
             if(attach_image_file_btn.isChecked){
                 fab_1.visibility = View.VISIBLE
                 fab_2.visibility = View.VISIBLE
                 fab_3.visibility = View.VISIBLE
-                fab_1.startAnimation(animation)
-                fab_2.startAnimation(animation)
-                fab_3.startAnimation(animation)
+                fab_1.startAnimation(animationAppear)
+                fab_2.startAnimation(animationAppear)
+                fab_3.startAnimation(animationAppear)
+                fab_1.isClickable = true
+                fab_2.isClickable = true
+                fab_3.isClickable = true
+                attach_image_file_btn.setBackgroundResource(R.drawable.ic_attachment2)
             }
             else{
                 fab_1.visibility = View.GONE
                 fab_2.visibility = View.GONE
                 fab_3.visibility = View.GONE
+                fab_1.startAnimation(animationDisappear)
+                fab_2.startAnimation(animationDisappear)
+                fab_3.startAnimation(animationDisappear)
+                fab_1.isClickable = false
+                fab_2.isClickable = false
+                fab_3.isClickable = false
+                attach_image_file_btn.setBackgroundResource(R.drawable.ic_attachment1)
             }
 
+        }
 
+        //File attach buttons
 
-           // sendImage()
+        fab_1.setOnClickListener {
+            Toast.makeText(this@MessageChatActivity, "Location button", Toast.LENGTH_SHORT).show()
+        }
 
+        fab_2.setOnClickListener {
+            sendImage()
+
+            Toast.makeText(this@MessageChatActivity, "Image file attach button", Toast.LENGTH_SHORT).show()
+        }
+
+        fab_3.setOnClickListener {
+            Toast.makeText(this@MessageChatActivity, "Video file attach button", Toast.LENGTH_SHORT).show()
         }
 
         seenMessage(userIdVisit)
@@ -450,4 +480,5 @@ class MessageChatActivity : AppCompatActivity() {
 
         reference!!.removeEventListener(seenListener!!)
     }
+
 }

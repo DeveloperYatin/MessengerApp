@@ -31,7 +31,7 @@
         android:layout_gravity="bottom|left"
         android:layout_marginLeft="20dp"
         android:layout_marginBottom="75dp"
-        android:src="@drawable/ic_video_call_black_24dp"
+        android:src="@drawable/ic_videocam_black_24dp"
         android:visibility="invisible"
         app:backgroundTint="@android:color/holo_blue_light"
         app:fabSize="mini" />
